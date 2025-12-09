@@ -2,6 +2,13 @@
 
 Bewibe/TUUN プロジェクトの AWS インフラストラクチャを Terraform で管理するリポジトリです。
 
+## 関連リポジトリ
+
+| リポジトリ | 用途 |
+|-----------|------|
+| `bewibe-infra` | AWSインフラ（Terraform） |
+| `TESTFLIGHT` | TUUNアプリ（iOS/Lambda）ソースコード |
+
 ## 概要
 
 | 項目 | 値 |
