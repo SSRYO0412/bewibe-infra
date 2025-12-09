@@ -43,6 +43,13 @@ resource "aws_s3_bucket_public_access_block" "gene_data" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_versioning" "gene_data" {
+  bucket = aws_s3_bucket.gene_data.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 # -----------------------------------------------------------------------------
 # tuun-certificates
 # -----------------------------------------------------------------------------
@@ -73,6 +80,13 @@ resource "aws_s3_bucket_public_access_block" "certificates" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_versioning" "certificates" {
+  bucket = aws_s3_bucket.certificates.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 # -----------------------------------------------------------------------------

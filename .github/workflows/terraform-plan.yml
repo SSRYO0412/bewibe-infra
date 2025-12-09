@@ -1,0 +1,47 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - 'stacks/tuun/**'
+      - 'modules/**'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::295250016740:role/terraform-ci-role
+          aws-region: ap-northeast-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: stacks/tuun
+        run: terraform init
+
+      - name: Terraform Format Check
+        working-directory: stacks/tuun
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Validate
+        working-directory: stacks/tuun
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: stacks/tuun
+        run: terraform plan -no-color

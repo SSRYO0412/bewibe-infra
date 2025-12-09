@@ -159,9 +159,10 @@
 
 ## 6. Secrets Manager
 
-| シークレット名 | 用途 |
-|--------------|------|
-| `tuunapp/openai-api-key` | OpenAI API キー |
+| シークレット名 | 用途 | Terraform管理 |
+|--------------|------|:-------------:|
+| `tuunapp/openai-api-key` | OpenAI API キー | ❌ |
+| `tuun/rawdata-credentials` | 外部API認証情報 | ✅ |
 
 ---
 
@@ -171,7 +172,11 @@
 
 | 項目 | 値 |
 |------|-----|
-| 状態 | ❌ **未設定** |
+| 状態 | ✅ **有効** |
+| Trail名 | `tuun-cloudtrail` |
+| ログバケット | `tuun-cloudtrail-logs-295250016740` |
+| マルチリージョン | No |
+| グローバルサービス | Yes |
 
 ### AWS Config
 
@@ -196,12 +201,13 @@
    - 対象: Users, blood-results, gene-analysis-results, user-health-profile 等
    - 対策: ~~本番データを扱うテーブルで PITR を有効化~~ → 有効化完了
 
-3. **S3 バージョニングが全バケットで無効**
-   - 対象: 全3バケット
-   - 対策: 特に `tuunapp-gene-data-a7x9k3` でバージョニングを有効化
+3. ~~**S3 バージョニングが全バケットで無効**~~ ✅ 対応済み (2025-12-10)
+   - 対象: ~~全3バケット~~ → `tuunapp-gene-data-a7x9k3`, `tuun-certificates` で有効化
+   - 注: `gene-data-temporary-transfer-a7x9k3` は一時データのためスキップ
 
-4. **CloudTrail / AWS Config が未設定**
-   - 対策: 監査ログの有効化
+4. ~~**CloudTrail / AWS Config が未設定**~~ ✅ CloudTrail対応済み (2025-12-10)
+   - CloudTrail: `tuun-cloudtrail` 有効化
+   - AWS Config: 未設定（コスト要検討）
 
 ---
 
@@ -211,3 +217,6 @@
 |------|-------|------|
 | 2025-12-10 | Claude Code | 初版作成（自動棚卸し） |
 | 2025-12-10 | Claude Code | DynamoDB PITR有効化（6テーブル） |
+| 2025-12-10 | Claude Code | S3バージョニング有効化（2バケット） |
+| 2025-12-10 | Claude Code | CloudTrail有効化 |
+| 2025-12-10 | Claude Code | GitHub OIDC + CI設定 |
