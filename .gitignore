@@ -3,7 +3,7 @@
 *.tfstate.*
 *.tfstate.backup
 .terraform/
-.terraform.lock.hcl
+# .terraform.lock.hcl should be committed (provider version lock)
 *.tfvars
 !*.tfvars.example
 crash.log
