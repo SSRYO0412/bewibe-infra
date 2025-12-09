@@ -56,3 +56,28 @@ data "aws_iam_role" "convert_gene_text" {
 data "aws_iam_role" "prepare_gene_transfer" {
   name = "PrepareGeneDataTransferFunction-role-98qt8r6h"
 }
+
+# -----------------------------------------------------------------------------
+# GetGeneRawdataFunction 用 Secrets Manager アクセス権限
+# -----------------------------------------------------------------------------
+# Lambda が Secrets Manager から認証情報を読み取るためのポリシー
+
+resource "aws_iam_role_policy" "get_gene_rawdata_secrets" {
+  name = "SecretsManagerAccess"
+  role = data.aws_iam_role.get_gene_rawdata.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.rawdata_credentials.arn
+        ]
+      }
+    ]
+  })
+}
