@@ -279,6 +279,109 @@ terraform import aws_secretsmanager_secret.name arn:aws:secretsmanager:...
 
 ---
 
+## Claude Code 運用ルール（v2.1）
+
+### 設計思想
+
+1. **主な安全性は IAM ポリシーで担保**
+   - settings.json の deny は補助的なガード
+   - IAM側で「そもそもできない」状態にする
+
+2. **既存TUUNリソースは触らない**
+   - Claude は `claude-*` プレフィックスのリソースのみ操作可能
+   - 既存 `tuun-*`、`Users`、`blood-results` 等には書き込み不可
+
+3. **新規リソース作成は Terraform 経由**
+   - Lambda / DynamoDB / S3 の新規作成は Terraform resource 追加
+   - Claude は Terraform 定義を書き、RYO が apply を実行
+
+4. **Access Key は Terraform 管理外**
+   - tfstate にシークレットを載せない
+   - 人間がAWSコンソールで発行し、ローカルにのみ保存
+
+### Claudeにやってもらうこと
+
+- 仕様理解、設計
+- `claude-*` Lambda コード更新・デプロイ（UpdateFunctionCode）
+- `claude-*` DynamoDB データ操作（CRUD）
+- `claude-*` S3 オブジェクト操作
+- Terraform定義作成（**新規 resource 追加のみ**）
+- terraform plan 実行
+- apply手順書の作成（コピペ可能な形式で）
+
+### 人間がやること
+
+- コードレビュー
+- terraform apply / destroy 実行
+- 既存TUUNリソースへの変更
+- リソース削除（Lambda/DynamoDBテーブル/S3バケット）
+- Access Key 発行・ローテーション
+- 結果のフィードバック
+
+### 禁止事項（Claude）
+
+| 操作 | 理由 |
+|------|------|
+| terraform apply / destroy | 構成変更は人間が判断 |
+| 既存TUUNリソースへの書き込み | IAMで拒否済み |
+| Lambda / DynamoDB / S3 の新規作成 | Terraform経由に統一 |
+| テーブル/バケット/関数の削除 | 取り消し困難 |
+| IAM変更 | セキュリティリスク |
+| 既存 resource ブロックの編集 | 意図しない変更防止 |
+
+### Terraform変更時のルール
+
+1. **既存 resource ブロックには手を入れない**
+2. **新しいものは必ず新規 resource 追加で対応**
+3. **terraform plan に既存リソースの変更が出たら**：
+   - 差分がゼロになるまでコードを修正
+   - 既存リソースへの変更が必要な場合は RYO に確認
+
+### 命名規則
+
+Claudeが新規作成するリソースは必ず `claude-` プレフィックスを付ける：
+
+| リソース | 命名例 |
+|---------|--------|
+| Lambda | `claude-test-function` |
+| DynamoDB | `claude-dev-data` |
+| S3バケット | `claude-sandbox-295250016740` |
+| IAMロール | `claude-lambda-role` |
+
+### AWSプロファイル
+
+| プロファイル | 用途 | 権限 |
+|-------------|------|------|
+| `tuun-terraform` | 人間用 | フルアクセス |
+| `claude-code` | Claude用 | `claude-*` リソースのみ、作成/削除不可 |
+
+### Access Key 管理
+
+```bash
+# 発行手順（人間が実行）
+# 1. AWS Console > IAM > Users > claude-code
+# 2. Security credentials > Create access key
+# 3. Use case: "Command Line Interface (CLI)"
+# 4. キーを ~/.aws/credentials に保存
+
+# ~/.aws/credentials
+[claude-code]
+aws_access_key_id = AKIA...
+aws_secret_access_key = ...
+
+# ~/.aws/config
+[profile claude-code]
+region = ap-northeast-1
+output = json
+```
+
+**注意:**
+- Access Key は Terraform で作成しない
+- SSM Parameter Store にも保存しない
+- tfstate にシークレットを載せない
+
+---
+
 ## 連絡先
 
 - インフラ担当: @SSRYO0412
