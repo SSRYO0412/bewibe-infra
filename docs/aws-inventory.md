@@ -80,17 +80,16 @@
 
 | テーブル名 | Hash Key | Range Key | 課金モード | Item数 | PITR |
 |-----------|----------|-----------|----------|:------:|:----:|
-| `Users` | id (S) | - | PAY_PER_REQUEST | 8 | ❌ |
-| `blood-results` | userId (S) | timestamp (S) | PAY_PER_REQUEST | 5 | ❌ |
-| `gene-analysis-results` | userId (S) | timestamp (S) | PAY_PER_REQUEST | 16 | ❌ |
+| `Users` | id (S) | - | PAY_PER_REQUEST | 8 | ✅ |
+| `blood-results` | userId (S) | timestamp (S) | PAY_PER_REQUEST | 5 | ✅ |
+| `gene-analysis-results` | userId (S) | timestamp (S) | PAY_PER_REQUEST | 16 | ✅ |
 | `gene-analysis-audit` | userId (S) | timestamp (S) | PAY_PER_REQUEST | 86 | ✅ |
-| `gene-data-transfers` | userId (S) | - | PAY_PER_REQUEST | 0 | ❌ |
-| `user-health-profile` | userId (S) | profileVersion (S) | PAY_PER_REQUEST | 3 | ❌ |
+| `gene-data-transfers` | userId (S) | - | PAY_PER_REQUEST | 0 | ✅ |
+| `user-health-profile` | userId (S) | profileVersion (S) | PAY_PER_REQUEST | 3 | ✅ |
 | `test` | ID (S) | - | PAY_PER_REQUEST | 0 | ❌ |
 
-### ⚠️ 要対応事項
-- **PITR が `gene-analysis-audit` 以外で無効**
-- 本番データを扱う `Users`, `blood-results`, `gene-analysis-results`, `user-health-profile` は PITR 有効化を強く推奨
+### ✅ PITR 有効化完了 (2025-12-10)
+- `test` テーブル以外の全テーブルで PITR を有効化済み
 
 ---
 
@@ -193,9 +192,9 @@
 
 ### 🟡 中優先度
 
-2. **DynamoDB PITR が大部分のテーブルで無効**
+2. ~~**DynamoDB PITR が大部分のテーブルで無効**~~ ✅ 対応済み (2025-12-10)
    - 対象: Users, blood-results, gene-analysis-results, user-health-profile 等
-   - 対策: 本番データを扱うテーブルで PITR を有効化
+   - 対策: ~~本番データを扱うテーブルで PITR を有効化~~ → 有効化完了
 
 3. **S3 バージョニングが全バケットで無効**
    - 対象: 全3バケット
@@ -211,3 +210,4 @@
 | 日付 | 変更者 | 内容 |
 |------|-------|------|
 | 2025-12-10 | Claude Code | 初版作成（自動棚卸し） |
+| 2025-12-10 | Claude Code | DynamoDB PITR有効化（6テーブル） |

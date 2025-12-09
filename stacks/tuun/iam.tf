@@ -3,172 +3,56 @@
 # =============================================================================
 # TUUN アプリケーションで使用する IAM ロール・ポリシー
 #
-# Phase 2-3 で terraform import を実行
+# 既存の Lambda 用 IAM ロールは個別に作成されているため、
+# 今回は data source で参照のみ行い、import は行わない。
+# 将来的に統合・整理する際に Terraform 管理下に移行する。
 # =============================================================================
 
-# TODO: Phase 2-3 で import 後にコメント解除
-#
-# 棚卸しで既存の IAM ロール名を確認後、import コマンドを追加
-# terraform import aws_iam_role.lambda_execution <role_name>
-# terraform import aws_iam_policy.lambda_dynamodb <policy_arn>
+# -----------------------------------------------------------------------------
+# 既存 IAM ロールの参照（data source）
+# -----------------------------------------------------------------------------
+# 各 Lambda 関数に割り当てられている既存ロールを参照
 
-# =============================================================================
-# Lambda Execution Role
-# =============================================================================
+data "aws_iam_role" "create_user" {
+  name = "CreateUserFunctionPython-role-qjfwg5bz"
+}
 
-# resource "aws_iam_role" "lambda_execution" {
-#   name = "tuun-lambda-execution-role"  # 棚卸しで確認後に設定
-#
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action = "sts:AssumeRole"
-#         Effect = "Allow"
-#         Principal = {
-#           Service = "lambda.amazonaws.com"
-#         }
-#       }
-#     ]
-#   })
-#
-#   tags = {
-#     Name        = "Lambda Execution Role"
-#     Description = "TUUN Lambda 関数の実行ロール"
-#   }
-# }
+data "aws_iam_role" "bulk_register" {
+  name = "BulkRegisterUsersFunction-role-spl7nnrc"
+}
 
-# =============================================================================
-# Lambda Basic Execution Policy (CloudWatch Logs)
-# =============================================================================
+data "aws_iam_role" "chat_api" {
+  name = "chat-api-function-role-bunthz97"
+}
 
-# resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
-#   role       = aws_iam_role.lambda_execution.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-# }
+data "aws_iam_role" "health_profile" {
+  name = "HealthProfileFunction-role-3ofri2ax"
+}
 
-# =============================================================================
-# Custom Policies
-# =============================================================================
+data "aws_iam_role" "get_gene_data" {
+  name = "GetGeneDataFunction-role-euxr4mph"
+}
 
-# resource "aws_iam_policy" "lambda_dynamodb" {
-#   name        = "tuun-lambda-dynamodb-policy"
-#   description = "Lambda から DynamoDB へのアクセス許可"
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "dynamodb:GetItem",
-#           "dynamodb:PutItem",
-#           "dynamodb:UpdateItem",
-#           "dynamodb:DeleteItem",
-#           "dynamodb:Query",
-#           "dynamodb:Scan"
-#         ]
-#         Resource = [
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/Users",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/Users/*",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/blood-results",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/blood-results/*",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/gene-analysis-results",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/gene-analysis-results/*",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/user-health-profile",
-#           "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/user-health-profile/*"
-#         ]
-#       }
-#     ]
-#   })
-# }
+data "aws_iam_role" "get_gene_rawdata" {
+  name = "GetGeneRawdataFunction-role-2haeygqb"
+}
 
-# resource "aws_iam_policy" "lambda_s3" {
-#   name        = "tuun-lambda-s3-policy"
-#   description = "Lambda から S3 へのアクセス許可"
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "s3:GetObject",
-#           "s3:PutObject",
-#           "s3:DeleteObject",
-#           "s3:ListBucket"
-#         ]
-#         Resource = [
-#           "arn:aws:s3:::tuunapp-gene-data-a7x9k3",
-#           "arn:aws:s3:::tuunapp-gene-data-a7x9k3/*"
-#         ]
-#       }
-#     ]
-#   })
-# }
+data "aws_iam_role" "get_blood_data" {
+  name = "GetBloodDataFunction-role-ssowtbg7"
+}
 
-# resource "aws_iam_policy" "lambda_cognito" {
-#   name        = "tuun-lambda-cognito-policy"
-#   description = "Lambda から Cognito へのアクセス許可"
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "cognito-idp:AdminCreateUser",
-#           "cognito-idp:AdminGetUser",
-#           "cognito-idp:AdminUpdateUserAttributes"
-#         ]
-#         Resource = [
-#           "arn:aws:cognito-idp:${var.aws_region}:${var.aws_account_id}:userpool/${var.cognito_user_pool_id}"
-#         ]
-#       }
-#     ]
-#   })
-# }
+data "aws_iam_role" "blood_analysis" {
+  name = "blood-analysis-function-role-963k0ae6"
+}
 
-# resource "aws_iam_policy" "lambda_secrets" {
-#   name        = "tuun-lambda-secrets-policy"
-#   description = "Lambda から Secrets Manager へのアクセス許可"
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = [
-#           "secretsmanager:GetSecretValue"
-#         ]
-#         Resource = [
-#           "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:tuunapp/*"
-#         ]
-#       }
-#     ]
-#   })
-# }
+data "aws_iam_role" "gene_analysis_evidence" {
+  name = "gene-analysis-evidence-function-role-zu9t9yyh"
+}
 
-# =============================================================================
-# Policy Attachments
-# =============================================================================
+data "aws_iam_role" "convert_gene_text" {
+  name = "ConvertGeneTextToJsonFunction-role-btzpebw1"
+}
 
-# resource "aws_iam_role_policy_attachment" "lambda_dynamodb" {
-#   role       = aws_iam_role.lambda_execution.name
-#   policy_arn = aws_iam_policy.lambda_dynamodb.arn
-# }
-
-# resource "aws_iam_role_policy_attachment" "lambda_s3" {
-#   role       = aws_iam_role.lambda_execution.name
-#   policy_arn = aws_iam_policy.lambda_s3.arn
-# }
-
-# resource "aws_iam_role_policy_attachment" "lambda_cognito" {
-#   role       = aws_iam_role.lambda_execution.name
-#   policy_arn = aws_iam_policy.lambda_cognito.arn
-# }
-
-# resource "aws_iam_role_policy_attachment" "lambda_secrets" {
-#   role       = aws_iam_role.lambda_execution.name
-#   policy_arn = aws_iam_policy.lambda_secrets.arn
-# }
+data "aws_iam_role" "prepare_gene_transfer" {
+  name = "PrepareGeneDataTransferFunction-role-98qt8r6h"
+}

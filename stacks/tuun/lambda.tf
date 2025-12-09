@@ -3,224 +3,284 @@
 # =============================================================================
 # TUUN アプリケーションで使用する Lambda 関数 (11個)
 #
-# 既存関数:
-# - CreateUserFunctionPython: Cognito PostConfirmation
-# - BulkRegisterUsersFunction: CSV一括登録
-# - chat-api-function: AIチャット
-# - HealthProfileFunction: ヘルスプロファイル管理
-# - GetGeneDataFunction: 遺伝子データ取得
-# - GetGeneRawdataFunction: 遺伝子生データ取得
-# - GetBloodDataFunction: 血液データ取得
-# - blood-analysis-function: 血液解析
-# - gene-analysis-evidence-function: 遺伝子解析エビデンス
-# - ConvertGeneTextToJsonFunction: テキスト→JSON変換
-# - PrepareGeneDataTransferFunction: データ移行準備
+# 注意: Lambda コードは別途管理（CI/CDまたは手動デプロイ）
+# Terraform は設定のみ管理し、コード変更は ignore_changes で無視
 #
 # Phase 2-4 で terraform import を実行
 # =============================================================================
 
-# TODO: Phase 2-4 で import 後にコメント解除
-#
-# terraform import aws_lambda_function.create_user CreateUserFunctionPython
-# terraform import aws_lambda_function.bulk_register BulkRegisterUsersFunction
-# terraform import aws_lambda_function.chat_api chat-api-function
-# terraform import aws_lambda_function.health_profile HealthProfileFunction
-# terraform import aws_lambda_function.get_gene_data GetGeneDataFunction
-# terraform import aws_lambda_function.get_gene_rawdata GetGeneRawdataFunction
-# terraform import aws_lambda_function.get_blood_data GetBloodDataFunction
-# terraform import aws_lambda_function.blood_analysis blood-analysis-function
-# terraform import aws_lambda_function.gene_analysis_evidence gene-analysis-evidence-function
-# terraform import aws_lambda_function.convert_gene_text ConvertGeneTextToJsonFunction
-# terraform import aws_lambda_function.prepare_gene_transfer PrepareGeneDataTransferFunction
+# -----------------------------------------------------------------------------
+# CreateUserFunctionPython
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.create_user CreateUserFunctionPython
 
-# =============================================================================
-# Lambda Deployment Packages
-# =============================================================================
+resource "aws_lambda_function" "create_user" {
+  function_name = "CreateUserFunctionPython"
+  role          = data.aws_iam_role.create_user.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 15
+  memory_size   = 128
 
-# TODO: Phase 2-4 でソースコードを lambda-src/tuun/ に配置後に有効化
-#
-# data "archive_file" "create_user" {
-#   type        = "zip"
-#   source_dir  = "${path.module}/../../lambda-src/tuun/cognito-trigger"
-#   output_path = "${path.module}/../../lambda-src/tuun/cognito-trigger.zip"
-# }
+  # プレースホルダー（実際のコードはCI/CDまたは手動デプロイ）
+  filename = "${path.module}/files/lambda_placeholder.zip"
 
-# =============================================================================
-# Lambda Functions
-# =============================================================================
+  # コードは Terraform 管理外（CI/CD または手動デプロイ）
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
 
-# resource "aws_lambda_function" "create_user" {
-#   function_name = "CreateUserFunctionPython"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   filename         = data.archive_file.create_user.output_path
-#   source_code_hash = data.archive_file.create_user.output_base64sha256
-#
-#   environment {
-#     variables = {
-#       ENVIRONMENT = var.environment
-#       # 棚卸しで確認した環境変数を追加
-#     }
-#   }
-#
-#   tags = {
-#     Name        = "CreateUserFunctionPython"
-#     Description = "Cognito PostConfirmation Lambda"
-#   }
-# }
+# -----------------------------------------------------------------------------
+# BulkRegisterUsersFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.bulk_register BulkRegisterUsersFunction
 
-# resource "aws_lambda_function" "bulk_register" {
-#   function_name = "BulkRegisterUsersFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   # filename と source_code_hash は Phase 2-4 で設定
-#
-#   tags = {
-#     Name        = "BulkRegisterUsersFunction"
-#     Description = "CSV一括ユーザー登録"
-#   }
-# }
+resource "aws_lambda_function" "bulk_register" {
+  function_name = "BulkRegisterUsersFunction"
+  role          = data.aws_iam_role.bulk_register.arn
+  handler       = "bulk_register_lambda.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 300
+  memory_size   = 256
 
-# resource "aws_lambda_function" "chat_api" {
-#   function_name = "chat-api-function"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = 60  # チャットは時間がかかる可能性
-#   memory_size   = 512
-#
-#   tags = {
-#     Name        = "chat-api-function"
-#     Description = "AI チャット機能"
-#   }
-# }
+  filename = "${path.module}/files/lambda_placeholder.zip"
 
-# resource "aws_lambda_function" "health_profile" {
-#   function_name = "HealthProfileFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "HealthProfileFunction"
-#     Description = "ヘルスプロファイル管理"
-#   }
-# }
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
 
-# resource "aws_lambda_function" "get_gene_data" {
-#   function_name = "GetGeneDataFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "GetGeneDataFunction"
-#     Description = "遺伝子データ取得"
-#   }
-# }
+# -----------------------------------------------------------------------------
+# chat-api-function
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.chat_api chat-api-function
 
-# resource "aws_lambda_function" "get_gene_rawdata" {
-#   function_name = "GetGeneRawdataFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "GetGeneRawdataFunction"
-#     Description = "遺伝子生データ取得"
-#   }
-# }
+resource "aws_lambda_function" "chat_api" {
+  function_name = "chat-api-function"
+  role          = data.aws_iam_role.chat_api.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 60
+  memory_size   = 128
 
-# resource "aws_lambda_function" "get_blood_data" {
-#   function_name = "GetBloodDataFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "GetBloodDataFunction"
-#     Description = "血液データ取得"
-#   }
-# }
+  filename = "${path.module}/files/lambda_placeholder.zip"
 
-# resource "aws_lambda_function" "blood_analysis" {
-#   function_name = "blood-analysis-function"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "blood-analysis-function"
-#     Description = "血液解析"
-#   }
-# }
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+      environment,
+    ]
+  }
+}
 
-# resource "aws_lambda_function" "gene_analysis_evidence" {
-#   function_name = "gene-analysis-evidence-function"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "gene-analysis-evidence-function"
-#     Description = "遺伝子解析エビデンス"
-#   }
-# }
+# -----------------------------------------------------------------------------
+# HealthProfileFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.health_profile HealthProfileFunction
 
-# resource "aws_lambda_function" "convert_gene_text" {
-#   function_name = "ConvertGeneTextToJsonFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "ConvertGeneTextToJsonFunction"
-#     Description = "遺伝子テキスト→JSON変換"
-#   }
-# }
+resource "aws_lambda_function" "health_profile" {
+  function_name = "HealthProfileFunction"
+  role          = data.aws_iam_role.health_profile.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
 
-# resource "aws_lambda_function" "prepare_gene_transfer" {
-#   function_name = "PrepareGeneDataTransferFunction"
-#   role          = aws_iam_role.lambda_execution.arn
-#   handler       = "lambda_function.lambda_handler"
-#   runtime       = var.lambda_runtime
-#   timeout       = var.lambda_timeout
-#   memory_size   = var.lambda_memory_size
-#
-#   tags = {
-#     Name        = "PrepareGeneDataTransferFunction"
-#     Description = "データ移行準備"
-#   }
-# }
+  filename = "${path.module}/files/lambda_placeholder.zip"
 
-# =============================================================================
-# CloudWatch Log Groups
-# =============================================================================
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
 
-# TODO: Phase 2-4 で有効化
-# resource "aws_cloudwatch_log_group" "create_user" {
-#   name              = "/aws/lambda/CreateUserFunctionPython"
-#   retention_in_days = 30
-# }
+# -----------------------------------------------------------------------------
+# GetGeneDataFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.get_gene_data GetGeneDataFunction
+
+resource "aws_lambda_function" "get_gene_data" {
+  function_name = "GetGeneDataFunction"
+  role          = data.aws_iam_role.get_gene_data.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# GetGeneRawdataFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.get_gene_rawdata GetGeneRawdataFunction
+
+resource "aws_lambda_function" "get_gene_rawdata" {
+  function_name = "GetGeneRawdataFunction"
+  role          = data.aws_iam_role.get_gene_rawdata.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  # VPC設定（既存の外部API接続用）
+  vpc_config {
+    subnet_ids         = ["subnet-0c7845dde99db2175"]
+    security_group_ids = ["sg-0e2169da081a2bf0a"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+      environment,  # 認証情報が含まれる
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# GetBloodDataFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.get_blood_data GetBloodDataFunction
+
+resource "aws_lambda_function" "get_blood_data" {
+  function_name = "GetBloodDataFunction"
+  role          = data.aws_iam_role.get_blood_data.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# blood-analysis-function
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.blood_analysis blood-analysis-function
+
+resource "aws_lambda_function" "blood_analysis" {
+  function_name = "blood-analysis-function"
+  role          = data.aws_iam_role.blood_analysis.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 15
+  memory_size   = 256
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# gene-analysis-evidence-function
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.gene_analysis_evidence gene-analysis-evidence-function
+
+resource "aws_lambda_function" "gene_analysis_evidence" {
+  function_name = "gene-analysis-evidence-function"
+  role          = data.aws_iam_role.gene_analysis_evidence.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 10
+  memory_size   = 256
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+      environment,
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# ConvertGeneTextToJsonFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.convert_gene_text ConvertGeneTextToJsonFunction
+
+resource "aws_lambda_function" "convert_gene_text" {
+  function_name = "ConvertGeneTextToJsonFunction"
+  role          = data.aws_iam_role.convert_gene_text.arn
+  handler       = "index.handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+    ]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# PrepareGeneDataTransferFunction
+# -----------------------------------------------------------------------------
+# Import: terraform import aws_lambda_function.prepare_gene_transfer PrepareGeneDataTransferFunction
+
+resource "aws_lambda_function" "prepare_gene_transfer" {
+  function_name = "PrepareGeneDataTransferFunction"
+  role          = data.aws_iam_role.prepare_gene_transfer.arn
+  handler       = "lambda_function.lambda_handler"
+  runtime       = "python3.13"
+  timeout       = 3
+  memory_size   = 128
+
+  filename = "${path.module}/files/lambda_placeholder.zip"
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      layers,
+      environment,
+    ]
+  }
+}
