@@ -133,10 +133,12 @@ FUUD アプリケーションのリソースを管理（未実装）
 
 ## ドキュメント
 
-- [AWS リソース棚卸し](docs/aws-inventory.md)
-- [運用ルール](docs/operations.md) ※作成予定
+- [AWS リソース棚卸し](docs/aws-inventory.md) - リソース一覧と設定詳細
+- [運用ルール](docs/operations.md) - 日常運用フロー、変更手順、トラブルシューティング
 - [terraform import 手順](docs/import-guide.md) ※作成予定
 - [障害対応手順](docs/incident-response.md) ※作成予定
+
+> **AI/自動化ツール向け**: 運用コマンドのクイックリファレンスは [docs/operations.md](docs/operations.md) の末尾を参照
 
 ## 注意事項
 
