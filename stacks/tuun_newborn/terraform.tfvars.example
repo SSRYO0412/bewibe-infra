@@ -1,0 +1,19 @@
+# =============================================================================
+# Terraform Variables Example - TUUN Newborn
+# =============================================================================
+# このファイルをコピーして terraform.tfvars を作成してください
+# terraform.tfvars は .gitignore で除外されています
+# =============================================================================
+
+aws_region     = "ap-northeast-1"
+project_name   = "tuun_newborn"
+environment    = "prod"
+aws_account_id = "295250016740"
+
+# Cognito (新規作成するため User Pool ID は不要)
+# cognito_user_pool_id = ""
+
+# Lambda
+lambda_runtime     = "python3.13"
+lambda_timeout     = 30
+lambda_memory_size = 256
